@@ -70,7 +70,7 @@ i l'ús de blocs then() a JavaScript:
 
         2.1.3.- Modificar el textContent del div que està contingut dins del div "loader" i la classe del qual és "loading-text" perquè posi estrictament "loading..."    
 
-    2.2.- A continuació, farem una cridada fetch a la següent URL: https://swapi.dev/api/people/?page=[page_number] on [page_number] és el paràmetre que indica el número de pàgina que volem consultar.
+    2.2.- A continuació, farem una cridada fetch a la següent URL:   on [page_number] és el paràmetre que indica el número de pàgina que volem consultar.
     Després, recollirem la resposta de l'anomenada fetch utilitzant un bloc then(), on, una vegada obtinguda la resposta, farem aquesta sèrie d'accions:
 
         2.2.1.- Emmagatzemarem la resposta en una posició del localhost anomenada "swapi_[page_number]" on [page_number] és el paràmetre que indica el número de pàgina que volem consultar ("swapi_1", "swapi_2", ...)
@@ -93,17 +93,61 @@ i l'ús de blocs then() a JavaScript:
 //1 modifyPageNumberInput
     function modifyPageNumberInput(){
         //Put your code here
-    }
+        const pageNumber = document.getElementById("pageNumber")
+        pageNumber.addEventListener("change",function(event){
+            fetchSWAPIPeople(event.target.value)
+        }
+    )}
 
     //2 fetchSWAPIPeople
-    function fetchSWAPIPeople(pageNumber) {
-        //Put your code here
-    }
+function fetchSWAPIPeople(pageNumber){
 
-    // 3 modifySendFormButton
-    function modifySendFormButton(){
-        //Put your code here
+    const myContent = document.getElementById("myContent");
+    myContent.classList.add("hidden");
+
+    const loader = document.getElementById("loader");
+    loader.classList.remove("hidden");
+
+    const loadingText = document.getElementById('loading-text');
+    loadingText.textContent = "loading...";
+
+    const container = document.getElementById("selectContainer");
+
+    
+    fetch(`https://swapi.dev/api/people/?page=${pageNumber}`)
+    .then(response => response.json())
+    .then(data => {
+        localStorage.setItem(`swapi_${pageNumber}`,JSON.stringify(data))
+
+        const dataResponse = data;
+        const select = document.createElement("SELECT");
+
+        dataResponse.results.forEach(character =>{
+            const option = document.createElement("OPTION")
+            option.textContent = character.name
+            option.value = character.url
+            select.appendChild(option)
+        }
+        )
+        loader.classList.add("hidden");
+        myContent.classList.remove("hidden");
+        container.innerHTML = "";
+        container.appendChild(select);
+        select.addEventListener("change",function (){myContent.action = select.value})
+        select.dispatchEvent(new Event("change"));
+    })
     }
+     
+function modifySendFormButton(){
+    const button = document.getElementById("sendForm");
+    const form = document.getElementById("myContent");
+
+    button.addEventListener("click", function(event){
+        event.preventDefault();  
+        window.open(form.action, "_blank"); 
+    });
+}
+
 /**
  *  Do not modify this DOMContentLoaded script
 */ 
